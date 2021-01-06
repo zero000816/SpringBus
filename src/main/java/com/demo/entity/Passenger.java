@@ -4,18 +4,15 @@ import lombok.Data;
 
 import javax.persistence.*;
 
-@Table
-@Entity
 @Data
-public class Building {
+@Entity
+@Table
+public class Passenger {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int bid;
-    //楼号
+    int rid;
     @Column
-    String buildingID;
-    //楼层数
+    String name;
     @Column
-    int floors;
-
+    String workID;
 }

@@ -53,8 +53,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByWorkId(String workId) {
-        return userRepository.findByWorkId(workId);
+    public User findByWorkID(String workID) {
+        return userRepository.findByWorkID(workID);
     }
 
     @Override
@@ -75,4 +75,15 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         return true;
     }
+
+    @Override
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
+    @Override
+    public void detele(User user) {
+        userRepository.delete(user);
+    }
+
 }

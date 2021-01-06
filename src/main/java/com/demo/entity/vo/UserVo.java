@@ -10,5 +10,7 @@ import java.util.Set;
 public class UserVo {
     private String name;
     private List<String> role;
-    private String workId;
+    private String workID;
+    private String originalPassword;
+    private String password;
 }

@@ -2,10 +2,14 @@ package com.demo.controller;
 import com.demo.entity.Role;
 import com.demo.entity.RoleUser;
 import com.demo.entity.User;
+import com.demo.entity.vo.UserAddVo;
+import com.demo.entity.vo.UserVerifyVo;
 import com.demo.entity.vo.UserVo;
+import com.demo.repository.RoleUserRepository;
 import com.demo.service.UserService;
 import com.demo.service.impl.RoleServiceImpl;
 import com.demo.service.impl.UserServiceImpl;
+import com.demo.utils.MD5;
 import com.demo.utils.Token;
 import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import net.sf.json.util.JSONUtils;
@@ -22,10 +26,10 @@ public class UserController {
     private UserServiceImpl userService;
 
     @Autowired
-    private RoleServiceImpl roleService;
+    private RoleUserRepository roleUserRepository;
 
     @CrossOrigin
-    @PostMapping(value = "/vue/user/list")
+    @GetMapping(value = "/user/list")
     @ResponseBody
     public Map list() {
         HashMap<String, Object> response = new HashMap<>();
@@ -33,7 +37,7 @@ public class UserController {
         for(User user:userService.getAllUser()) {
             UserVo userVo=new UserVo();
             userVo.setName(user.getName());
-            userVo.setWorkId(user.getWorkId());
+            userVo.setWorkID(user.getWorkID());
             List<String> roleList=new ArrayList<>();
             for(Role role:userService.getAllRoles(user.getUid())){
                 roleList.add(role.getName());
@@ -49,40 +53,116 @@ public class UserController {
     }
 
     @CrossOrigin
-    @PostMapping(value = "/vue/user/modify")
+    @PostMapping(value = "/user/add")
     @ResponseBody
-    public Map modify(@RequestBody UserVo userVo ){
-        // 这里的逻辑应该接收工号和修改的权限，然后再数据库里根据工号找到这个user并把role更改,合理的逻辑是工号找uid，直接改rid）
-
-        HashMap<String, Object> response = new HashMap<>();
-        List<String> roleStringSet = userVo.getRole();
-        User user =userService.findByWorkId(userVo.getWorkId());
-        Set<RoleUser> roleUsers = user.getRoleUsers();
-        Set<RoleUser> newRoleUsers = new HashSet<>();
-        for (RoleUser ru: roleUsers){
-            if (ru.getStatus() == 0){
-                String ru_name = roleService.findByRid(ru.getRoleId()).getName();
-                if (roleStringSet.contains(ru_name)){
-                    newRoleUsers.add(ru);
-                    roleStringSet.remove(ru_name);
+    public Map add(@RequestBody  UserAddVo userAddVo){
+        System.out.println(userAddVo);
+        HashMap<String,Object> response =new HashMap<>();
+        User userAdmin=userService.findByWorkID(userAddVo.getAdminWorkID());
+        if(userService.findByWorkID(userAddVo.getWorkID())!=null){
+            response.put("code", 2002);
+            response.put("message", "账号错误");
+        }
+        else if(MD5.encrypt(userAddVo.getAdminPassword()).equals(userAdmin.getPassword())){
+            User user=new User();
+            user.setName(userAddVo.getName());
+            user.setPassword(MD5.encrypt(userAddVo.getPassword()));
+            user.setWorkID(userAddVo.getWorkID());
+            userService.save(user);
+            User user1=userService.findByWorkID(user.getWorkID());
+            for(String role:userAddVo.getRoles()){
+                if(role.equals("student")){
+                    RoleUser roleUserTemp= new RoleUser();
+                    roleUserTemp.setUserId(user1.getUid());
+                    roleUserTemp.setRoleId(3);
+                    roleUserRepository.save(roleUserTemp);
                 }
+                if(role.equals("busAdmin")){
+                    RoleUser roleUserTemp= new RoleUser();
+                    roleUserTemp.setUserId(user1.getUid());
+                    roleUserTemp.setRoleId(2);
+                    roleUserRepository.save(roleUserTemp);
+                }
+                if(role.equals("superAdmin")){
+                    RoleUser roleUserTemp= new RoleUser();
+                    roleUserTemp.setUserId(user1.getUid());
+                    roleUserTemp.setRoleId(1);
+                    roleUserRepository.save(roleUserTemp);
+                }
+
             }
+            response.put("code", 20000);
+            response.put("message", "密码修改成功");
+
+        }else{
+            response.put("code", 2002);
+            response.put("message", "密码错误");
         }
-        if (roleStringSet.size()!=0){
-            for (String ru: roleStringSet){
-                RoleUser roleUser = new RoleUser();
-                roleUser.setUserId(user.getUid());
-                roleUser.setRoleId(roleService.findByName(ru).getRid());
-                newRoleUsers.add(roleUser);
-            }
-        }
-        System.out.println(newRoleUsers.size());
-        userService.updateRoles(user.getName(), newRoleUsers);
-        System.out.println("ok");
-        response.put("code", 20000);
-        response.put("msg", "登录成功");
         return response;
     }
 
+    @CrossOrigin
+    @PostMapping(value = "/user/modify")
+    @ResponseBody
+    public Map modify(@RequestBody UserVo userVo ){
+
+        HashMap<String, Object> response = new HashMap<>();
+        User userBack =userService.findByWorkID(userVo.getWorkID());
+        System.out.println(userBack);
+        System.out.println(userVo);
+        if(userBack.getPassword().equals(MD5.encrypt(userVo.getOriginalPassword()))){
+            userBack.setPassword(MD5.encrypt(userVo.getPassword()));
+            userService.save(userBack);
+            response.put("code", 20000);
+            response.put("message", "密码修改成功");
+
+        }else{
+            response.put("code", 2002);
+            response.put("message", "密码错误");
+        }
+
+        return response;
+    }
+
+    @CrossOrigin
+    @PostMapping(value = "/user/unlock")
+    @ResponseBody
+    public Map unlock(@RequestBody UserVerifyVo user){
+        HashMap<String, Object> response = new HashMap<>();
+        User userAdmin =userService.findByWorkID(user.getAdminWorkID());
+        User userBack =userService.findByWorkID(user.getWorkID());
+        if(userAdmin.getPassword().equals(MD5.encrypt(user.getAdminPassword()))){
+            userBack.setStatus(0);
+            userService.save(userBack);
+            response.put("code", 20000);
+            response.put("message", "解锁成功");
+
+        }else{
+            response.put("code", 2002);
+            response.put("message", "密码错误");
+        }
+
+        return response;
+    }
+
+    @CrossOrigin
+    @PostMapping(value = "/user/deleteUser")
+    @ResponseBody
+    public Map delete(@RequestBody UserVerifyVo user){
+        HashMap<String, Object> response = new HashMap<>();
+        User userAdmin =userService.findByWorkID(user.getAdminWorkID());
+        User userBack =userService.findByWorkID(user.getWorkID());
+        if(userAdmin.getPassword().equals(MD5.encrypt(user.getAdminPassword()))){
+            userService.detele(userBack);
+            response.put("code", 20000);
+            response.put("message", "删除成功");
+
+        }else{
+            response.put("code", 2002);
+            response.put("message", "密码错误");
+        }
+
+        return response;
+    }
 
 }

@@ -12,25 +12,23 @@ public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int sid;
-    //学号
+    //学号(在前端逻辑里可能是workID）
     @Column
     String studentID;
     @Column
     String name;
     @Column
-    String dormName;
-    @Column
-    int gender;
+    int status;
     @Column
     String verifyCode;
 
-    public Student(StudentVo student, Dorm dorm) {
+   /* public Student(StudentVo student, Dorm dorm) {
         this.studentID = student.getStudentID();
         this.name = student.getName();
         this.gender = student.getGender();
         this.dormName = student.getDormName();
         this.verifyCode = student.getVerifyCode();
-    }
+    }*/
 
     public Student() {
 
@@ -42,7 +40,7 @@ public class Student {
                 "sid=" + sid +
                 ", studentID='" + studentID + '\'' +
                 ", name='" + name + '\'' +
-                ", dormName='" + dormName + '\'' +
+                ", status='" + status + '\'' +
                 '}';
     }
 }

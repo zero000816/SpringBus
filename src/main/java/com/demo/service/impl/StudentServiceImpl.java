@@ -1,17 +1,12 @@
 package com.demo.service.impl;
 
-import com.demo.entity.ChooseLog;
-import com.demo.entity.Dorm;
+/*
 import com.demo.entity.Student;
-import com.demo.repository.ChooseLogRepository;
-import com.demo.repository.DormRepository;
 import com.demo.repository.StudentRepository;
 import com.demo.service.StudentService;
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -80,3 +75,4 @@ public class StudentServiceImpl implements StudentService {
     }
 }
 
+*/

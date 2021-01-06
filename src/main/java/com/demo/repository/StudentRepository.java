@@ -10,7 +10,5 @@ public interface StudentRepository extends JpaRepository<Student,Long> {
     @Override
     List<Student> findAll();
 
-    List<Student> findAllByDormName(String dormName);
-
     Student findByStudentID(String studentID);
 }

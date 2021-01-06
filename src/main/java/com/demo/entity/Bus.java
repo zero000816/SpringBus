@@ -5,15 +5,13 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Entity
+@Table
 @Data
-public class ChooseLog {
+public class Bus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int clid;
+    private int bid;
 
     @Column
-    String studentID;
-
-    @Column
-    String information;
+    private int number;
 }

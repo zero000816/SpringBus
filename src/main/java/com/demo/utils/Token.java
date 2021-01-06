@@ -15,6 +15,7 @@ public class Token {
     public static String getToken(User user){
 
         String token = JWT.create().withClaim("uid",user.getUid())
+                .withClaim("workID",user.getWorkID())
                 .withClaim("name",user.getName())
                 .sign(Algorithm.HMAC256(user.getPassword()));
         return token;
@@ -30,6 +31,12 @@ public class Token {
         Claim claim=JWT.decode(token).getClaim("name");
         String name=claim.asString();
         return name;
+    }
+
+    public static String getWorkIDFromToken(String token){
+        Claim claim=JWT.decode(token).getClaim("workID");
+        String workID=claim.asString();
+        return workID;
     }
 
     public static String getStudentIDFromToken(String token){
