@@ -10,7 +10,7 @@ import javax.persistence.*;
 public class Passenger {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    int rid;
+    int pid;
     @Column
     String name;
     @Column

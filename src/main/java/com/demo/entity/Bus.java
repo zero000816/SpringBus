@@ -10,8 +10,13 @@ import javax.persistence.*;
 public class Bus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int bid;
+    private Integer bid;
+
+    //number 表示总数
+    @Column
+    private Integer number;
 
     @Column
-    private int number;
+    private Integer sale=0;
+
 }
