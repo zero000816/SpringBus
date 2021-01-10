@@ -63,6 +63,7 @@ public class LoginController {
         System.out.println("info");
         String name = Token.getUsernameFromToken(token);
         String workID = Token.getWorkIDFromToken(token);
+        System.out.println("name"+name);
         User user = userService.findByWorkID(workID);
         Set<String> set = new HashSet<>();
         Set<Role> roleSet = userService.getAllRoles(user.getUid());

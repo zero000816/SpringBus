@@ -4,6 +4,7 @@ import com.demo.entity.Bus;
 import com.demo.entity.Passenger;
 import com.demo.entity.User;
 import com.demo.entity.vo.BusVo;
+import com.demo.mq.producer.Producer;
 import com.demo.repository.BusRepository;
 import com.demo.service.PassengerService;
 import com.demo.service.impl.BusServiceImpl;
@@ -34,6 +35,8 @@ public class BusController {
     BusRepository busRepository;
     @Autowired
     PassengerServiceImpl passengerService;
+    @Autowired
+    Producer producer;
 
     @CrossOrigin
     @PostMapping(value = "/bus/submit")
@@ -76,7 +79,7 @@ public class BusController {
     }
 
     @CrossOrigin
-    @GetMapping(value = "/bus/test")
+    @PostMapping(value = "/bus/test")
     @ResponseBody
     public Map test() {
         HashMap<String, Object> response = new HashMap<>();
@@ -86,17 +89,47 @@ public class BusController {
                     response.put("code", 100);
                 }else {
                     int num = busService.createOrder();
-                    Logger.getGlobal().info("购买成功，剩余库存为: [{}]" + num);
+
                     //这段应该发给mq。。让mq来处理
                     Passenger passenger=new Passenger();
                     passenger.setWorkID(String.valueOf(num));
-                    passengerService.save(passenger);
+                    producer.addToMq(passenger);
+                    Logger.getGlobal().info("购买成功，剩余库存为: [{}]" + num);
                 }
             } catch (Exception e) {
                 Logger.getGlobal().info("失败");
 
             }
             response.put("code", 20000);
+        return response;
+    }
+
+    @CrossOrigin
+    @GetMapping(value = "/bus/order")
+    @ResponseBody
+    public Map order(@RequestHeader("X-token") String token) {
+        HashMap<String, Object> response = new HashMap<>();
+        String name = Token.getUsernameFromToken(token);
+        String workID = Token.getWorkIDFromToken(token);
+        try {
+            if (busService.getNumber() <= 0) {
+                Logger.getGlobal().info("由缓存可知，已无库存");
+                response.put("code", 100);
+            }else {
+                int num = busService.createOrder();
+                Passenger passenger=new Passenger();
+                passenger.setName(name);
+                passenger.setWorkID(workID);
+                producer.addToMq(passenger);
+                Logger.getGlobal().info("购买成功，剩余库存为: [{" + (num-1)+"}]");
+                response.put("message","提交成功");
+                response.put("code", 20000);
+            }
+        } catch (Exception e) {
+            Logger.getGlobal().info("失败");
+            response.put("message","提交失败");
+            response.put("code", 2000);
+        }
         return response;
     }
 

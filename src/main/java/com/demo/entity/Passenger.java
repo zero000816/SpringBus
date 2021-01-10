@@ -13,6 +13,6 @@ public class Passenger {
     int pid;
     @Column
     String name;
-    @Column
+    @Column(unique = true)
     String workID;
 }
