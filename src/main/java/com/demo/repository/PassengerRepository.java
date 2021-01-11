@@ -14,9 +14,11 @@ import java.util.Set;
 public interface PassengerRepository extends JpaRepository<Passenger,Long> {
     List<Passenger> findAll();
     Passenger findByPid(int pid);
+    Passenger findByWorkID(String workID);
 
     @Transactional
     @Modifying
     @Query(value = "truncate table passenger",nativeQuery = true)
     void truncateTable();
+
 }

@@ -27,4 +27,9 @@ public class PassengerServiceImpl implements PassengerService {
     public void truncateTable(){
         passengerRepository.truncateTable();
     }
+
+    @Override
+    public Passenger findByWorkID(String workID) {
+        return passengerRepository.findByWorkID(workID);
+    }
 }

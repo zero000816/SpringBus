@@ -11,6 +11,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.logging.Logger;
+
 @Component
 public class Customer {
     @Autowired
@@ -30,7 +32,7 @@ public class Customer {
         try{
         passengerService.save(passenger);
         }catch (Exception e){
-            e.printStackTrace();
+            Logger.getGlobal().info("写入同一个人");
         }
     }
 }
