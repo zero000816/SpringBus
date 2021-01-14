@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 @Service
@@ -90,6 +91,32 @@ public class BusServiceImpl implements BusService {
 
     public void clear(){
         redisTemplate.delete("number");
+    }
+
+    @Override
+    public int addUserCount(String workID) {
+        String limitKey = "workID_" + workID;
+        String limitNum = redisTemplate.opsForValue().get(limitKey);
+        int limit = -1;
+        if (limitNum == null) {
+            redisTemplate.opsForValue().set(limitKey, "0", 1000, TimeUnit.SECONDS);
+        } else {
+            limit = Integer.parseInt(limitNum) + 1;
+            redisTemplate.opsForValue().set(limitKey, String.valueOf(limit), 1000, TimeUnit.SECONDS);
+        }
+        return limit;
+    }
+
+    @Override
+    public boolean getUserIsBanned(String workID,int num) {
+        String limitKey = "workID_" + workID;
+        String limitNum = redisTemplate.opsForValue().get(limitKey);
+        if (limitNum == null) {
+            Logger.getGlobal().info("该用户没有访问申请验证值记录");
+            return true;
+        }
+
+        return Integer.parseInt(limitNum)>num;
     }
 
 }

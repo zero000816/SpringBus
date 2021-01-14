@@ -12,4 +12,6 @@ public interface BusService {
     int getNumber();
     List<Passenger> getAllPassenger();
     int createOrder();
+    boolean getUserIsBanned(String workID,int num);
+    public int addUserCount(String workID);
 }
