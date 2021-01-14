@@ -27,8 +27,6 @@ public class Customer {
     public void receive2(String message){
         Gson gson = new Gson();
         Passenger passenger = gson.fromJson(message, Passenger.class);
-        System.out.println(passenger);
-        System.out.println("好像可以接收到信息？");
         try{
         passengerService.save(passenger);
         }catch (Exception e){

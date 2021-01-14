@@ -6,12 +6,14 @@ import com.demo.service.impl.BusServiceImpl;
 import com.demo.service.impl.PassengerServiceImpl;
 import com.demo.utils.Token;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+@Controller
 public class StudentController {
 
     @Autowired
